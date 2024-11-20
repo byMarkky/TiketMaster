@@ -1,5 +1,7 @@
 package org.tiqueto;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.tiqueto.model.FanGrupo;
 import org.tiqueto.model.PromotoraConciertos;
 import org.tiqueto.model.WebCompraConciertos;
@@ -10,8 +12,9 @@ import java.util.List;
 
 public class EjemploTicketMaster {
 
+	private static final Logger logger = LoggerFactory.getLogger(EjemploTicketMaster.class);
 	// Total de entradas que se vender�n
-	public static int TOTAL_ENTRADAS = 10;
+	public static int TOTAL_ENTRADAS = 50;
 
 	// El número de entradas que reponerá cada vez el promotor
 	public static int REPOSICION_ENTRADAS = 2;
@@ -27,12 +30,12 @@ public class EjemploTicketMaster {
 		String mensajeInicial = "[ Empieza la venta de tickets. Se esperan %d fans, y un total de %d entradas ]";
 		System.out.println(String.format(mensajeInicial, NUM_FANS, TOTAL_ENTRADAS));
 		WebCompraConciertos webCompra = new WebCompraConciertos();
-		PromotoraConciertos liveNacion = new PromotoraConciertos(webCompra);
+		PromotoraConciertos liveNacion = new PromotoraConciertos(webCompra, REPOSICION_ENTRADAS, TOTAL_ENTRADAS);
 		List<FanGrupo> fans = new ArrayList<>();
 
 		// Creamos todos los fans
 		for (int numFan = 1; numFan <= NUM_FANS; numFan++) {
-			FanGrupo fan = new FanGrupo(webCompra, numFan);
+			FanGrupo fan = new FanGrupo(webCompra, numFan, MAX_ENTRADAS_POR_FAN);
 			fans.add(fan);
 			fan.start();
 		}
@@ -51,6 +54,6 @@ public class EjemploTicketMaster {
 		for (FanGrupo fan : fans) {
 			fan.muestraEntradasCompradas();
 		}
-	}
+    }
 
 }
