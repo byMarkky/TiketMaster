@@ -22,9 +22,15 @@ public class PromotoraConciertos extends Thread {
 	@Override
 	public void run() {
 
-		for (int i = 0; i < REPOSICIONES; i++) {
-			logger.info("QUIERO REPONER LAS ENTRADAS");
-			logger.info("ENTRADAS REPUESTAS: {}", webCompra.reponerEntradas((TOTAL_ENTRADAS / REPOSICIONES)));
+		int i = 0;
+
+		while (i < TOTAL_ENTRADAS) {
+			logger.info("PROMOTOR: Voy a reponer mas entradas");
+			int nEntradasRepuestas = webCompra.reponerEntradas(REPOSICIONES);
+
+			if (nEntradasRepuestas > 0) logger.info("PROMOTOR: {} entradas repuestas", nEntradasRepuestas);
+
+			if (!webCompra.hayEntradas()) logger.info("PROMOTOR: No hay mas entradas");
 
 			try {
 				Random rd = new Random();
@@ -32,6 +38,8 @@ public class PromotoraConciertos extends Thread {
 			} catch (InterruptedException e) {
 				throw new RuntimeException(e);
 			}
+
+			i += REPOSICIONES;
 		}
 
 		logger.info("EL PROMOTOR TERMINA LA REPOSICION Y CIERRA LA VENTA");

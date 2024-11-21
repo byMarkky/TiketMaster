@@ -10,9 +10,9 @@ public class FanGrupo extends Thread {
 	private static final Logger logger = LoggerFactory.getLogger(FanGrupo.class);
 	final WebCompraConciertos webCompra;
 	int numeroFan;
-	private String tabuladores = "\t\t\t\t";
+	private final String tabuladores = "\t\t\t\t";
 	int entradasCompradas = 0;
-	private int MAX_ENTRADAS_POR_FAN;
+	private final int MAX_ENTRADAS_POR_FAN;
 
 	public FanGrupo(WebCompraConciertos web, int numeroFan, int maxEntradasPorFan) {
 		super();
@@ -27,29 +27,28 @@ public class FanGrupo extends Thread {
 			try {
 				Thread.sleep(1000);
 
-				while (entradasCompradas <= this.MAX_ENTRADAS_POR_FAN) {
-					if (!webCompra.isVentaAbierta()) {
-						logger.info("OH, SE HA CERRADO LA VENTA");
-						break;
-					}
+				while (webCompra.isVentaAbierta()) {
 
-					logger.info("VOY A COMPRAR UNA ENTRADA");
+					logger.info("{}FAN_{}: Voy a comprar una entrada", tabuladores, numeroFan);
+
 					if (webCompra.comprarEntrada()) {
+						if (entradasCompradas >= MAX_ENTRADAS_POR_FAN) break;
 						entradasCompradas++;
-						logger.info("HE COMPRADO UNA ENTRADA Y LLEVO {}", entradasCompradas);
+						logger.info("{}FAN_{}: He comprado una entrada, ya llevo {}", tabuladores, numeroFan, entradasCompradas);
+						logger.info("{}FAN_{} me voy a dormir zzzz", tabuladores, numeroFan);
+						Thread.sleep(new Random().nextInt(1000, 3001));
 					}
 
 				}
+				if (!webCompra.isVentaAbierta()) logger.info("SE HA CERRADO LA VENTA :(");
 
-				Random rd = new Random();
-				Thread.sleep(rd.nextInt(1000, 3001));
 			} catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
 	}
 	
 	public void muestraEntradasCompradas() {
-		logger.info("TOTAL ENTRADAS COMPRADAS: {}", this.entradasCompradas);
+		logger.info("{}FAN_{}: TOTAL ENTRADAS COMPRADAS: {}", tabuladores, numeroFan, this.entradasCompradas);
 	}
 	
 

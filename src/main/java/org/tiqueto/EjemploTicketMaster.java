@@ -14,7 +14,7 @@ public class EjemploTicketMaster {
 
 	private static final Logger logger = LoggerFactory.getLogger(EjemploTicketMaster.class);
 	// Total de entradas que se vender�n
-	public static int TOTAL_ENTRADAS = 50;
+	public static int TOTAL_ENTRADAS = 10;
 
 	// El número de entradas que reponerá cada vez el promotor
 	public static int REPOSICION_ENTRADAS = 2;
@@ -28,7 +28,7 @@ public class EjemploTicketMaster {
 	public static void main(String[] args) throws InterruptedException {
 
 		String mensajeInicial = "[ Empieza la venta de tickets. Se esperan %d fans, y un total de %d entradas ]";
-		System.out.println(String.format(mensajeInicial, NUM_FANS, TOTAL_ENTRADAS));
+		logger.info(String.format(mensajeInicial, NUM_FANS, TOTAL_ENTRADAS));
 		WebCompraConciertos webCompra = new WebCompraConciertos();
 		PromotoraConciertos liveNacion = new PromotoraConciertos(webCompra, REPOSICION_ENTRADAS, TOTAL_ENTRADAS);
 		List<FanGrupo> fans = new ArrayList<>();
@@ -46,9 +46,9 @@ public class EjemploTicketMaster {
 		//Esperamos a que el promotor termine, para preguntar a los fans cu�ntas entradas tienen compradas
 		liveNacion.join();
 
-		System.out.println("\n [ Terminada la fase de venta - Sondeamos a pie de calle a los compradores ] \n");
-		System.out.println("Total entradas ofertadas: " + TOTAL_ENTRADAS);
-		System.out.println("Total entradas disponibles en la web: " + webCompra.entradasRestantes());
+		logger.info("[ Terminada la fase de venta - Sondeamos a pie de calle a los compradores ]");
+		logger.info("Total entradas ofertadas: {}", TOTAL_ENTRADAS);
+		logger.info("Total entradas disponibles en la web: {}", webCompra.entradasRestantes());
 
 		// Les preguntamos a cada uno
 		for (FanGrupo fan : fans) {

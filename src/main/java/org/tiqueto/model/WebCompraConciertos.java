@@ -5,6 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.tiqueto.IOperacionesWeb;
 
+import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WebCompraConciertos implements IOperacionesWeb {
@@ -22,21 +23,24 @@ public class WebCompraConciertos implements IOperacionesWeb {
 	@Override
 	public synchronized boolean comprarEntrada() {
 
-		logger.info("INTENTANDO COMPRAR ENTRADAS");
+		// Mientras no haya entradas pero la venta SI ESTE ABIERTA
 		while(!hayEntradas() && ventaAbierta) {
 			try {
-				logger.info("NO HAY ENTRADAS, TOCA ESPERAR");
+				logger.info("WEB: SOLD OUT! No hay entradas, espera se repongan");
 				this.wait();
+				// Comprobamos si despues de esperar la venta sigue abierta
+				if (!ventaAbierta) return false;
 
 			} catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
 
-		logger.info("HAY ENTRADAS");
+		logger.info("WEB: HAY {} ENTRADAS", entradas.get());
 
 		this.entradas.decrementAndGet();
-		notify();
+
+        notify();	// Liberamos al promotor para ver si puede reponer entradas
 
 		return true;
 	}
@@ -45,19 +49,17 @@ public class WebCompraConciertos implements IOperacionesWeb {
 	@Override
 	public synchronized int reponerEntradas(int numeroEntradas) {
 
-		logger.info("INTENTANDO REPONER ENTRADAS");
-
-		if (this.hayEntradas()) {
+		while (this.hayEntradas()) {
             try {
-				logger.info("TODAVIA HAY ENTRADAS, TOCA ESPERAR");
+				logger.info("WEB: TODAVIA HAY ENTRADAS, TOCA ESPERAR");
 				wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
         }
 
-		//entradas += numeroEntradas;
 		entradas.addAndGet(numeroEntradas);
+		logger.info("Web: Ahora hay {} entradas", entradas.get());
 		notify();
 		return entradasRestantes();
 	}
@@ -66,7 +68,7 @@ public class WebCompraConciertos implements IOperacionesWeb {
 	@Override
 	public synchronized void cerrarVenta() {
 		this.ventaAbierta = false;
-		logger.info("VENTA CERRADA");
+		logger.info("PROMOTOR: VENTA CERRADA");
 		notifyAll();
 	}
 
